@@ -12,3 +12,15 @@ provider "aws" {
   region = "us-east-1"
   profile = "default"
 }
+
+module "vpc" {
+  source = "./modules/vpc"
+}
+
+module "ec2" {
+  source = "./modules/ec2"
+}
+
+module "rds" {
+  source = "./modules/rds"
+}

@@ -115,6 +115,8 @@ resource "aws_subnet" "private-subnet-4" {
   }
 }
 
+
+
 # Elastic IP for NAT gateway
 resource "aws_eip" "eip" {
   vpc      = true
@@ -128,4 +130,24 @@ resource "aws_nat_gateway" "nat-gateway" {
     Name = "NAT-gateway"
   }
   depends_on = [aws_internet_gateway.internet-gateway]
+}
+
+# Create Route Table and Add Private Route
+resource "aws_route_table" "private-route-table" {
+  vpc_id       = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat-gateway.id
+  }
+
+  tags       = {
+    Name     = "Private Route Table"
+  }
+}
+
+# Associate Private Subnet 1 to "Private Route Table"
+resource "aws_route_table_association" "private-subnet-1-route-table-association" {
+  subnet_id           = aws_subnet.private-subnet-1.id
+  route_table_id      = aws_route_table.private-route-table.id
 }
