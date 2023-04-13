@@ -1,5 +1,6 @@
 resource "aws_security_group" "ec2-sg" {
-  name = "${var.name}-sg"
+  # name = "${var.name}-sg"
+  name = "rs-sg"
   description = "EC2 security group"
   vpc_id = var.vpc_id
 }
@@ -31,6 +32,15 @@ resource "aws_security_group_rule" "ec2-sg-ssh" {
   cidr_blocks = [ "0.0.0.0/0" ]
 }
 
+resource "aws_security_group_rule" "ec2-sg-node" {
+  type = "ingress"
+  security_group_id = aws_security_group.ec2-sg.id
+  from_port = 3000
+  to_port = 3000
+  protocol = "TCP"
+  cidr_blocks = [ "0.0.0.0/0" ]
+}
+
 resource "aws_security_group_rule" "ec2-sg-egress" {
   type = "egress"
   security_group_id = aws_security_group.ec2-sg.id
@@ -40,11 +50,12 @@ resource "aws_security_group_rule" "ec2-sg-egress" {
   cidr_blocks = [ "0.0.0.0/0" ]
 }
 
+
 resource "aws_instance" "ec2" {
   ami = var.ami_id
   instance_type = var.instance_type
   subnet_id = var.subnet_id
-  key_name = "naseev"
+  key_name = "rskey"
 #   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
   root_block_device {
     volume_size = 8
@@ -54,7 +65,27 @@ resource "aws_instance" "ec2" {
   tags = merge(
     var.tags,
     {
-        Name = var.name
+        Name = var.name[0]
+    }
+  )
+}
+
+
+resource "aws_instance" "ec2_2" {
+  ami = var.ami_id
+  instance_type = var.instance_type
+  subnet_id = var.subnet_id
+  key_name = "rskey"
+#   iam_instance_profile = aws_iam_instance_profile.ec2_profile.id
+  root_block_device {
+    volume_size = 8
+    volume_type = "gp3"
+    encrypted = true
+  }
+  tags = merge(
+    var.tags,
+    {
+        Name = var.name[1]
     }
   )
 }
